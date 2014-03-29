@@ -232,9 +232,6 @@ var SudokuSolver = function() {
     for (j = 0; j < 9; j += 1) {
       cellCandidatesInfo = callback(cand, i, j);
       cellCandidatesInfo[0].forEach(function(element, index, array) {
-        if (i === 4) {
-          window.alert(element);
-        }
         block_candidates[element - 1].push(cellCandidatesInfo[1]);
       }, this);
     }
@@ -259,23 +256,20 @@ var SudokuSolver = function() {
     var pair_candidates = [];
     console.log("the regard_locked_pairs function gets invoked");
     for (j = 0; j < 9; j += 1) {
+      pair_candidates = [];
       cell = callback(cand, i, j);
       if (cell[0].length >= 2) {
         for(k = 0; k < 9; k += 1) {
           other = callback(cand, i, k);
-          if (other[0].length === cell[0].length) {
-            if (_.isEqual(cell[0], other[0])) {
-              pair_candidates.push(other[1]);
-            }
-          } else {
-            continue;
+          if (_.isEqual(cell[0], other[0])) {
+            pair_candidates.push(other[1]);
           }
         }
       }
       if (pair_candidates.length === cell[0].length) {
         console.log("There are some pairs or triplets!");
-        remove_candidates_from_block(cand, i, cell[0], pair_candidates, function(i, j) {
-          return callback(cand, i, j)[1];
+        remove_candidates_from_block(cand, i, cell[0], pair_candidates, function(r, c) {
+          return callback(cand, r, c)[1];
         });
       }
     }
