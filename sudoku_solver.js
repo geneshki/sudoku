@@ -13,39 +13,6 @@ var SudokuPuzzle = function(cellValues) {
 var SudokuSolver = function() {
   var that = this;
 
-  this.solve = function(puzzle) {
-    var work_cells;
-    var candidates;
-    var empty_cells = 0;
-    var candidates_count = 0;
-    var new_count = -1;
-    if (typeof puzzle == 'undefined') {
-      return null;
-    }
-    work_cells = puzzle.cells.slice(); // copy the puzzle to a working array for safety.
-    empty_cells = count_empty_cells(work_cells);
-    while(candidates_count != new_count) {
-      if(candidates_count != new_count) {
-        candidates = find_candidates(work_cells);
-        candidates_count = count(candidates);
-        put_lone_candidates(work_cells, candidates);
-        work_cells = traverse_trough_blocks(work_cells, put_block_unique_candidates);
-        new_count = count(candidates);
-      }
-      if (candidates_count == new_count) {
-        work_cells = traverse_trough_blocks(work_cells, this.regard_locked_pairs);
-        new_count = count(candidates);
-      }
-      console.log("candidates count:" + new_count);
-    }
-    // if (count_empty_cells(work_cells) == 0) {
-      puzzle.cells = work_cells;
-    //} else {
-    //  return null;
-    //}
-
-    return puzzle;
-  }
 
   var count_empty_cells = function(cells) {
     var i = 0; // row index
@@ -249,7 +216,7 @@ var SudokuSolver = function() {
    * * an array with the value of the candidate for a given cell and its coords
    * format of return value: [ [c1, c2, c3...], [row, column] ]
    */
-  this.regard_locked_pairs = function(i, cells, cand, callback) {
+   var regard_locked_pairs = function(i, cells, cand, callback) {
     var j, k;
     var cell;
     var other;
@@ -265,15 +232,14 @@ var SudokuSolver = function() {
             pair_candidates.push(other[1]);
           }
         }
-      }
-      if (pair_candidates.length === cell[0].length) {
-        console.log("There are some pairs or triplets!");
-        remove_candidates_from_block(cand, i, cell[0], pair_candidates, function(r, c) {
-          return callback(cand, r, c)[1];
-        });
+        if (pair_candidates.length === cell[0].length) {
+          console.log("There are some pairs or triplets!");
+          remove_candidates_from_block(cand, i, cell[0], pair_candidates, function(r, c) {
+            return callback(cand, r, c)[1];
+          });
+        }
       }
     }
-
     return cand;
   }
 
@@ -310,6 +276,47 @@ var SudokuSolver = function() {
       }
     }
     return ret;    
+  }
+
+  this.solve = function(puzzle) {
+    var work_cells;
+    var candidates;
+    var empty_cells = 0;
+    var candidates_count = 0;
+    var new_count = -1;
+    if (typeof puzzle == 'undefined') {
+      return null;
+    }
+    work_cells = puzzle.cells.slice(); // copy the puzzle to a working array for safety.
+    empty_cells = count_empty_cells(work_cells);
+    while(candidates_count != new_count) {
+      if(candidates_count != new_count) {
+        candidates = find_candidates(work_cells);
+        candidates_count = count(candidates);
+        put_lone_candidates(work_cells, candidates);
+        work_cells = traverse_trough_blocks(work_cells, put_block_unique_candidates);
+        new_count = count(candidates);
+      }
+      if (candidates_count == new_count) {
+        work_cells = traverse_trough_blocks(work_cells, regard_locked_pairs);
+        new_count = count(candidates);
+      }
+      console.log("candidates count:" + new_count);
+    }
+
+
+    if (count_empty_cells(work_cells) !== 0) {
+      //TODO: implement backtracking solving algorithm.
+    }
+
+
+    // if (count_empty_cells(work_cells) == 0) {
+    puzzle.cells = work_cells;
+    //} else {
+    //  return null;
+    //}
+
+    return puzzle;
   }
 }
 
