@@ -49,8 +49,7 @@ test( "solve() should return a valid sudoku solution.", function() {
                       [1,5,4,7,9,6,8,2,3],
                       [2,3,9,8,4,1,5,6,7]];
   var solver = new SudokuSolver();
-  var puzzle = new SudokuPuzzle(puzzleCells);
-  var solution = solver.solve(puzzle).cells;
+  var solution = solver.solve(puzzleCells);
   deepEqual(solution, solvedPuzzle, "The puzzle is solved correctly");
 });
 
@@ -75,7 +74,7 @@ test(" solve() should return a valid evil sudoku solution.", function() {
                      [1,5,2,3,4,8,7,6,9]];
   var solver = new SudokuSolver();
   var puzzle = new SudokuPuzzle(evilCells);
-  var solution = solver.solve(puzzle).cells;
+  var solution = solver.solve(evilCells);
   deepEqual(solution, evilSolution, "The evil puzzle is solved correctly");
 });
 

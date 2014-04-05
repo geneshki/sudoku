@@ -278,8 +278,28 @@ var SudokuSolver = function() {
     return ret;    
   }
 
-  this.solve = function(puzzle) {
-    var work_cells;
+  var has_bad_cells = function(cells, candidates) {
+    var i, j;
+    for (i = 0; i < 9; i += 1) {
+      for (j = 0; j < 9; j += 1) {
+        if (cells[i][j] === 0 && candidates[i][j].length === 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  //TODO: fix this method.
+  var backtrack = function(cells, candidates) {
+    var crds = find_next_free_cell(cells, 0, 0);
+    candidates[crds[0]][crds[1]].filter(function(e,i,a) {
+      var common_logic = solve_with_common_logic(cells);
+      return !has_bad_cells(common_logic[0], common_logic[1]);
+    }, this);
+  }
+
+  var solve_with_common_logic = function(puzzle) {
     var candidates;
     var empty_cells = 0;
     var candidates_count = 0;
@@ -287,31 +307,39 @@ var SudokuSolver = function() {
     if (typeof puzzle == 'undefined') {
       return null;
     }
-    work_cells = puzzle.cells.slice(); // copy the puzzle to a working array for safety.
-    empty_cells = count_empty_cells(work_cells);
+    empty_cells = count_empty_cells(puzzle);
     while(candidates_count != new_count) {
       if(candidates_count != new_count) {
-        candidates = find_candidates(work_cells);
+        candidates = find_candidates(puzzle);
         candidates_count = count(candidates);
-        put_lone_candidates(work_cells, candidates);
-        work_cells = traverse_trough_blocks(work_cells, put_block_unique_candidates);
+        put_lone_candidates(puzzle, candidates);
+        puzzle = traverse_trough_blocks(puzzle, put_block_unique_candidates);
         new_count = count(candidates);
       }
       if (candidates_count == new_count) {
-        work_cells = traverse_trough_blocks(work_cells, regard_locked_pairs);
+        puzzle = traverse_trough_blocks(puzzle, regard_locked_pairs);
         new_count = count(candidates);
       }
       console.log("candidates count:" + new_count);
     }
+    return [puzzle, candidates];
+  }
 
+  // solves SudokuPuzzles. Takes a SudokuPuzzle object
+  this.solve = function(puzzle) {
+    var common_logic_result;
+    var candidates;
 
-    if (count_empty_cells(work_cells) !== 0) {
+    common_logic_result = solve_with_common_logic(puzzle);
+    
+    puzzle = common_logic_result[0];
+    candidates = common_logic_result[1];
+    if (count_empty_cells(puzzle) !== 0) {
       //TODO: implement backtracking solving algorithm.
+      backtrack(puzzle, candidates);
     }
 
-
     // if (count_empty_cells(work_cells) == 0) {
-    puzzle.cells = work_cells;
     //} else {
     //  return null;
     //}
