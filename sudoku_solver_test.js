@@ -23,8 +23,9 @@ test("Should generate a puzzle object from a 9x9 array", function() {
 
 
 module("puzzle solution generation");
+var underscore = _.noConflict();
 test("SudokuSolver function should generate a SudokuSolver object", function() {
-  var solver = new SudokuSolver();
+  var solver = new SudokuSolver(underscore);
   equal(typeof solver, 'object', "solver is created");
   equal(typeof solver.solve, 'function', "Function 'solve' is present");
 });
@@ -48,7 +49,7 @@ test( "solve() should return a valid sudoku solution.", function() {
                       [7,8,6,2,3,5,9,1,4],
                       [1,5,4,7,9,6,8,2,3],
                       [2,3,9,8,4,1,5,6,7]];
-  var solver = new SudokuSolver();
+  var solver = new SudokuSolver(underscore);
   var solution = solver.solve(puzzleCells);
   deepEqual(solution, solvedPuzzle, "The puzzle is solved correctly");
 });
@@ -72,7 +73,7 @@ test(" solve() should return a valid evil sudoku solution.", function() {
                      [8,7,6,5,1,9,2,4,3],
                      [4,3,9,6,2,7,5,8,1],
                      [1,5,2,3,4,8,7,6,9]];
-  var solver = new SudokuSolver();
+  var solver = new SudokuSolver(underscore);
   var puzzle = new SudokuPuzzle(evilCells);
   var solution = solver.solve(evilCells);
   deepEqual(solution, evilSolution, "The evil puzzle is solved correctly");
