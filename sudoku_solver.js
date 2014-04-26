@@ -326,6 +326,9 @@ var SudokuSolver = function (underscore) {
     var cand;
     var work_cells;
     var track_val;
+    var filter_bad_cand = function (e) {
+              return e !== track_val;
+      };
     if (candidates === undefined) {
       candidates = find_candidates(cells);
     }
@@ -346,9 +349,7 @@ var SudokuSolver = function (underscore) {
       work_cells[crds[0]][crds[1]] = track_val; //add a value to the first empty cell in cells
       tracked_cells = backtrack(work_cells, cand);
       if (tracked_cells === null) {
-        cand[crds[0]][crds[1]] = cand[crds[0]][crds[1]].filter(function (e) {
-          return e !== track_val;
-        }, this);
+        cand[crds[0]][crds[1]] = cand[crds[0]][crds[1]].filter(filter_bad_cand, this);
       }
     }
     return tracked_cells;
