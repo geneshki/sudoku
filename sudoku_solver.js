@@ -301,35 +301,57 @@ var SudokuSolver = function (underscore) {
     }
     return [puzzle, candidates];
   };
-  var find_next_free_cell = function (cells) {
 
+  var find_next_free_cell = function (cells) {
+    var i, j;
+    i = 0;
+    j = 0;
+    while (cells[i][j] !== 0 && (i !== 9 && j !== 9)) {
+      j = (j + 1) % 9;
+      if (j === 0) {
+        i += 1;
+      }
+    }
+    if (i === 9 && j === 9) {
+      return null;
+    }
+    return [i, j];
   };
 
-  //TODO: fix this method.
+  //TODO: test this method.
   var backtrack = function (cells, candidates) {
     var crds;
     var results;
     var tracked_cells;
     var cand;
     var work_cells;
+    var track_val;
     if (candidates === undefined) {
       candidates = find_candidates(cells);
     }
     cand = candidates.slice();
     work_cells = cells.slice();
 
-    results = solve_with_common_logic(work_cells, cand);
-    if (!has_bad_cells(results[0], results[1])) {
-      crds = find_next_free_cell(results[0]);
-      cand[crds[0]][crds[1]].filter(function (e, i, a) {
-
-      }, this);
-      //add a value to the first empty cell in cells
-      tracked_cells = backtrack(cells, candidates);
-    } else {
-      return null;
+    crds = find_next_free_cell(work_cells);
+    tracked_cells = null;
+    while (cand[crds[0]][crds[1]].length > 0) {
+      results = solve_with_common_logic(work_cells, cand);
+      if (count_empty_cells(results[0]) === 0) {
+        return results[0];
+      }
+      if (has_bad_cells(results[0], results[1])) {
+        return null;
+      }
+      track_val = cand[crds[0]][crds[1]][0];
+      work_cells[crds[0]][crds[1]] = track_val; //add a value to the first empty cell in cells
+      tracked_cells = backtrack(work_cells, cand);
+      if (tracked_cells === null) {
+        cand[crds[0]][crds[1]] = cand[crds[0]][crds[1]].filter(function (e) {
+          return e !== track_val;
+        }, this);
+      }
     }
-    return results;
+    return tracked_cells;
   };
 
   // solves SudokuPuzzles. Takes a SudokuPuzzle object
